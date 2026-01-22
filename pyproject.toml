@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=68", "wheel", "pip>=24"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "onestop-pcb"
+version = "0.1.0"
+description = "Unified PCB CAM + multi-machine sender (PySide6, Python 3.10+)"
+readme = "README.md"
+authors = [{name = "Your Org"}]
+license = { text = "Proprietary; see THIRD_PARTY_NOTICES.md" }
+requires-python = ">=3.10,<3.13"
+
+dependencies = [
+  "PySide6>=6.10.1,<6.11",
+  "shapely>=2.1.2,<2.3",
+  "svgpathtools>=1.7.2,<1.8",
+  "Pillow>=12.1.0,<12.2",
+  "scikit-image>=0.26.0,<0.27",
+  "numpy>=1.26,<3.0",
+  "scipy>=1.11,<2.0",
+  "pyserial>=3.5,<4.0",
+  "gerbonara>=1.0.0",
+  "vpype>=1.10.0,<1.11",
+  "attrs>=23,<25",
+  "pydantic>=2.6,<3",
+  "orjson>=3.9,<4",
+  "typing-extensions>=4.8,<4.12",
+  "platformdirs>=4,<5",
+  "qtpy>=2.4,<3",
+]
+
+[project.optional-dependencies]
+vectorize = ["potracer>=0.0.1"]
+
+[project.scripts]
+onestop-pcb = "onestop.__main__:main"
+
+[tool.setuptools.package-data]
+"onestop.resources" = ["qt/*", "icons/*", "licenses/*"]
+
+[tool.black]
+line-length = 100
+
+[tool.isort]
+profile = "black"
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-q"
+testpaths = ["tests"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+warn_unused_ignores = true
+
+[tool.onestop]
+geom_tolerance_mm = 0.01
+max_board_size_mm = [1000.0, 1000.0]

@@ -1,0 +1,32 @@
+{
+  "schema": 1,
+  "units": "mm",
+  "layers": [
+    {
+      "id": "top_copper",
+      "source": "svg",
+      "path": "tests/top_trace.svg"
+    }
+  ],
+  "cam": {
+    "resolution": 0.01,
+    "ops": [
+      {
+        "type": "isolation",
+        "layer": "top_copper",
+        "tool": "vbit_30_0.1",
+        "passes": 1,
+        "isolation": 0.2,
+        "depth": -0.05,
+        "clearance_height": 1.0
+      }
+    ],
+    "autolevel": {
+      "enabled": true,
+      "method": "bilinear",
+      "map": "tests/heightmap_demo.json",
+      "dz_max": 0.02,
+      "lmax": 2.0
+    }
+  }
+}
