@@ -10,7 +10,7 @@ python -m onestop   # runs CLI skeleton
 ```
 
 ## Docs
-- `docs/SPEC-1-OneStopPCB.md`
+- `docs/SPEC-1-OpenPCB.md`
 - `docs/BACKLOG.md`
 - `docs/DEPLOYMENT.md`
 - `docs/THIRD_PARTY_NOTICES.md`

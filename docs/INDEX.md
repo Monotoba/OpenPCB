@@ -17,6 +17,6 @@
 - [V-Groove & Panel Rails/Fiducials](A4-VGrooveRailsFids.md)
 - [CLI Smoke Test](B1-CLI.md)
 - [Backlog (Epics & Stories)](BACKLOG.md)
-- [SPEC (single-file combined)](SPEC-1-OneStopPCB.md)
+- [SPEC (single-file combined)](SPEC-1-OpenPCB.md)
 - [Third-Party Notices](THIRD_PARTY_NOTICES.md)
 - [Deployment & Serial (condensed)](DEPLOYMENT.md)

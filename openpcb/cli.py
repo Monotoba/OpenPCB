@@ -7,4 +7,4 @@ def main():
     if args.echo:
         print(args.echo)
     else:
-        print("OneStop PCB CLI scaffold. See docs/SPEC-1-OneStopPCB.md")
+        print("OneStop PCB CLI scaffold. See docs/SPEC-1-OpenPCB.md")
