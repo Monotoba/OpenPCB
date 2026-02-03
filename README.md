@@ -296,7 +296,7 @@ Phase 1 implementation is complete with the following features:
 - ✅ Preferences dialog with multi-page settings
 - ✅ Comprehensive documentation
 
-See [PROGRESS.md](docs/PROGRESS.md) for detailed implementation status.
+See [PHASE1-PROGRESS.md](docs/PHASE1-PROGRESS.md) for detailed implementation status.
 
 ### Next Steps (Phase 2)
 
