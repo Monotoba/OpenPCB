@@ -25,6 +25,7 @@
 
 - [Phase 1 Progress Tracker](PHASE1-PROGRESS.md) - Implementation status, verification commands, completion criteria
 - [Phase 1 Architecture: Configuration System](PHASE1-ARCHITECTURE-CONFIG.md) - Technical deep-dive into settings management
+- [HiDPI Issues and Solutions](HIDPI-ISSUES.md) - Known HiDPI problems and fixes (menu positioning on GNOME)
 
 **Deliverables**:
 - ✅ Development environment with linters, formatters, git hooks

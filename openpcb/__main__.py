@@ -30,13 +30,29 @@ def main_gui() -> int:
     logger = logging.getLogger(__name__)
 
     try:
-        # Configure HiDPI BEFORE creating QApplication
+        # Import Qt first to set attributes
+        from PySide6.QtCore import Qt
+        from PySide6.QtWidgets import QApplication
+
+        # Set Qt attributes BEFORE creating QApplication
+        QApplication.setHighDpiScaleFactorRoundingPolicy(
+            Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
+        )
+        QApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+        QApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+
+        # CRITICAL FIX for GNOME menu positioning:
+        # Disable native menu bar to prevent GNOME's global menu system from
+        # interfering with Qt menu rendering. Without this, menu dropdowns can
+        # appear at incorrect positions, especially on HiDPI displays.
+        # This forces Qt to render menus in-window rather than using the desktop's
+        # native menu system.
+        QApplication.setAttribute(Qt.AA_DontUseNativeMenuBar, True)
+
+        # Configure HiDPI environment variables
         from openpcb.ui.hidpi import configure_hidpi
 
         configure_hidpi()
-
-        # Import Qt AFTER HiDPI configuration
-        from PySide6.QtWidgets import QApplication
 
         from openpcb.ui.mainwindow import MainWindow
 

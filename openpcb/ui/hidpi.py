@@ -3,6 +3,34 @@ HiDPI display support for OpenPCB.
 
 Configures Qt for optimal rendering on high-resolution displays.
 Must be called before QApplication instantiation.
+
+## Known Issues and Solutions
+
+### Menu Dropdown Misalignment on GNOME with HiDPI (Fixed)
+
+**Issue**: On GNOME desktop environments with HiDPI scaling (e.g., QT_SCALE_FACTOR=2.0),
+menu dropdowns appear at incorrect positions. For example, clicking "File" in the menu
+bar would cause the dropdown to appear under the "View" menu instead.
+
+**Root Cause**: Double scaling conflict. When QT_SCALE_FACTOR is set externally
+(by desktop environment or user), Qt 6's automatic scaling can multiply this factor
+rather than using it directly. This causes geometry calculations (especially for menus)
+to be incorrect.
+
+**Solution**: When an external QT_SCALE_FACTOR is detected in "auto" mode, we explicitly
+disable Qt's automatic scaling by setting:
+- QT_AUTO_SCREEN_SCALE_FACTOR=0
+- QT_ENABLE_HIGHDPI_SCALING=0
+
+This prevents double scaling while preserving the user's desired scale factor.
+
+**References**:
+- Qt 6 HiDPI Documentation: https://doc.qt.io/qt-6/highdpi.html
+- Qt Bug QTBUG-52606: Menu positioning issues with HiDPI
+- ArchWiki HiDPI Guide: https://wiki.archlinux.org/title/HiDPI
+
+**Additional Fix**: The application also sets Qt.AA_DontUseNativeMenuBar to prevent
+GNOME's global menu system from interfering with Qt menu bar rendering.
 """
 
 from __future__ import annotations
@@ -34,33 +62,33 @@ def configure_hidpi(settings: HiDPISettings | None = None) -> None:
 
     logger.info(f"Configuring HiDPI: mode={settings.scale_mode}")
 
-    # Enable high DPI scaling
-    if settings.enable_high_dpi_scaling:
-        os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "1"
-        logger.debug("Enabled Qt high DPI scaling")
-    else:
+    # Check if QT_SCALE_FACTOR is set externally
+    external_scale = os.environ.get("QT_SCALE_FACTOR")
+
+    if external_scale and settings.scale_mode == "auto":
+        # CRITICAL FIX for menu positioning on HiDPI displays:
+        # Prevent double scaling when QT_SCALE_FACTOR is manually set by the desktop
+        # environment (e.g., GNOME with 2x scaling). Without these settings, Qt 6
+        # multiplies the scale factor causing incorrect geometry calculations,
+        # especially for menu dropdowns which appear offset from their menu bar items.
+        # See: https://doc.qt.io/qt-6/highdpi.html
+        os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "0"
         os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
-        logger.debug("Disabled Qt high DPI scaling")
-
-    # High DPI pixmaps
-    if settings.use_high_dpi_pixmaps:
-        os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
-        logger.debug("Enabled high DPI pixmaps")
-
-    # Scale factor rounding
-    if settings.round_scale_factor:
-        os.environ["QT_SCALE_FACTOR_ROUNDING_POLICY"] = "Round"
-    else:
-        os.environ["QT_SCALE_FACTOR_ROUNDING_POLICY"] = "PassThrough"
-
-    # Custom scale factor
-    if settings.scale_mode == "custom":
+        logger.info(f"External QT_SCALE_FACTOR={external_scale} detected - disabled automatic scaling")
+    elif settings.scale_mode == "custom":
+        # Custom scale factor
         os.environ["QT_SCALE_FACTOR"] = str(settings.custom_scale_factor)
+        os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "0"
+        os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"
         logger.info(f"Set custom scale factor: {settings.custom_scale_factor}")
-    elif settings.scale_mode == "system":
-        # Let system handle scaling
+    else:
+        # Auto/system mode - let Qt handle scaling automatically
         os.environ.pop("QT_SCALE_FACTOR", None)
-        logger.debug("Using system DPI scaling")
+        if settings.enable_high_dpi_scaling:
+            os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "1"
+        if settings.use_high_dpi_pixmaps:
+            os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
+        logger.debug("Using Qt automatic scaling")
 
     # Platform-specific tweaks
     if sys.platform == "win32":
