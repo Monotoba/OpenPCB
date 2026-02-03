@@ -9,7 +9,7 @@ description = "Unified PCB CAM + multi-machine sender (PySide6, Python 3.10+)"
 readme = "README.md"
 authors = [{name = "Your Org"}]
 license = { text = "Proprietary; see THIRD_PARTY_NOTICES.md" }
-requires-python = ">=3.10,<3.13"
+requires-python = ">=3.11,<3.13"
 
 dependencies = [
   "PySide6>=6.10.1,<6.11",
