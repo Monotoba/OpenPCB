@@ -82,17 +82,17 @@ def main_gui() -> int:
         return 1
 
 
-def main() -> None:
+def main() -> int | None:
     """Main entry point - delegates to CLI or GUI."""
     if len(sys.argv) > 1:
         # Command-line arguments provided - use CLI
         from openpcb.cli import main as cli_main
 
-        cli_main()
+        return cli_main()
     else:
         # No arguments - launch GUI
-        sys.exit(main_gui())
+        return main_gui()
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

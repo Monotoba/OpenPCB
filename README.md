@@ -1,311 +1,115 @@
-# 🧠 OpenPCB
+# OpenPCB
 
-**OpenPCB** is a cross-platform desktop application for PCB fabrication, combining CAM, machine control, and job management into one unified tool.
+[![CI](https://github.com/Monotoba/OpenPCB/actions/workflows/ci.yml/badge.svg)](https://github.com/Monotoba/OpenPCB/actions/workflows/ci.yml)
+[![Python 3.11–3.12](https://img.shields.io/badge/python-3.11%E2%80%933.12-blue.svg)](https://www.python.org/)
+[![PySide6](https://img.shields.io/badge/GUI-PySide6-41CD52.svg)](https://doc.qt.io/qtforpython-6/)
+[![License: BSD-2-Clause](https://img.shields.io/badge/license-BSD--2--Clause-blue.svg)](LICENSE)
+[![Status: early development](https://img.shields.io/badge/status-early_development-orange.svg)](#project-status)
 
-It’s written in **Python 3.10+** using **PySide6 / Qt 6** for the UI, and includes complete support for **Gerber**, **Excellon**, **SVG**, and **G-Code** workflows.
+OpenPCB is an early-stage, cross-platform desktop workspace for PCB fabrication. The
+project aims to bring board visualization, CAM preparation, job management, and machine
+control into one application for hobbyists and small shops.
 
----
+> [!IMPORTANT]
+> OpenPCB is a project in progress and is **not ready for production use**. The application
+> currently provides its GUI and configuration foundation; PCB import, CAM generation, and
+> machine control remain planned work.
 
-## 🚀 Features
+## Project status
 
-- 🖼️ Layered visualization with pan, zoom, rulers, and grid  
-- ✂️ Geometry operations — translate, rotate, scale, mirror, boolean ops  
-- 🧩 CAM engine — trace isolation, raster, drill, outline, silkscreen, solder mask  
-- 🧠 Post-processors — GRBL, Marlin, Smoothie, LinuxCNC, Mach3/4, FANUC 2.5D  
-- ⚙️ Multi-machine sender (serial + TCP), async, safe, real-time  
-- 🧱 Plugin and extension API with deterministic job pipelines  
-- 💾 Configurable YAML/JSON job profiles  
-- 🖥️ Cross-platform builds for Windows, macOS, Linux  
+The current prototype includes:
 
----
+- A PySide6 main-window scaffold with menus, toolbars, and dockable panels
+- Persistent, validated settings using Pydantic
+- Display, HiDPI, and workspace preference pages
+- Platform-specific settings storage and window-geometry persistence
+- Automated tests for the configuration layer
 
-## 🧩 Architecture
+The following major capabilities are not implemented yet:
 
-| Layer | Purpose | Tech |
-|-------|----------|------|
-| **Frontend** | PySide6 / Qt interface (viewer, composer, inspector) | PySide6 / Qt 6 |
-| **Core Engine** | Geometry + CAM + parsing | Shapely 2.x, svgpathtools, scikit-image |
-| **Sender** | Async device interface | asyncio, pyserial, TCP |
-| **Persistence** | Jobs, profiles, settings | JSON / YAML |
-| **Packaging** | Cross-platform builds | PyInstaller / Briefcase |
+- Gerber, Excellon, SVG, raster, and G-code import
+- Interactive board and toolpath visualization
+- Isolation, drilling, outline, raster, and panelization CAM operations
+- Post-processing and machine communication
+- Project persistence and distributable desktop builds
 
----
+See the [development backlog](docs/BACKLOG.md) and
+[Phase 1 report](docs/PHASE1-PROGRESS.md) for more detail.
 
-## 🧰 Installation
+## Try the prototype
+
+OpenPCB requires Python 3.11 or 3.12. The simplest development setup uses
+[uv](https://docs.astral.sh/uv/):
 
 ```bash
 git clone https://github.com/Monotoba/OpenPCB.git
 cd OpenPCB
-pip install -e .
+uv sync --extra dev
+uv run openpcb
 ```
 
-## ⚙️ Quick Setup with UV
+The window is currently a functional shell: it lets you explore the preferences and layout,
+but it does not yet process PCB files.
 
-OpenPCB uses **[uv](https://github.com/astral-sh/uv)** for fast, reproducible environments.
-
----
-
-### 🪄 Step 1 — Create a UV Environment
-
-From your repo root (`~/projects/python-3/openpcb`):
+You can also exercise the small command-line scaffold:
 
 ```bash
-# Ensure uv is installed (if not)
-pip install uv
-
-# Create an isolated environment in .venv
-uv venv
-
-# Activate the environment
-source .venv/bin/activate  # (on macOS/Linux)
-# or
-.venv\Scripts\activate     # (on Windows PowerShell)
+uv run openpcb --echo "OpenPCB is running"
 ```
 
-Then install dependencies directly from `pyproject.toml`:
+## Development
+
+Run the checks used by CI:
 
 ```bash
-uv sync
+uv sync --extra dev
+uv run pytest
+uv build
 ```
 
-This installs all `[project.dependencies]` packages into `.venv`, completely isolated from your system Python.
-
----
-
-### ⚙️ Step 2 — Updated `pyproject.toml` for UV
-
-Add a `[tool.uv]` section so future `uv sync` commands automatically resolve dependencies:
-
-```toml
-[tool.uv]
-default-groups = ["dev"]
-
-[tool.uv.group.dev.dependencies]
-pytest = "^8.0"
-black = "^24.1"
-flake8 = "^7.0"
-```
-
-Now you can just run:
+The existing helper scripts remain available:
 
 ```bash
-uv sync
-```
-
-…and everything (runtime + dev tools) gets installed instantly.
-
----
-
-### 📘 Step 3 — Update Your README Setup Instructions
-
-Add this new setup section near the top of the README:
-
-````markdown
-## ⚙️ Quick Setup with UV
-
-OpenPCB uses **[uv](https://github.com/astral-sh/uv)** for fast, reproducible environments.
-
-### 1️⃣ Install UV
-```bash
-pip install uv
-````
-
-### 2️⃣ Create and activate a venv
-
-```bash
-uv venv
-source .venv/bin/activate
-```
-
-### 3️⃣ Sync dependencies
-
-```bash
-uv sync
-```
-
-### 4️⃣ Run the app
-
-```bash
-python -m openpcb
-```
-
-````
-
----
-
-### 🧱 Step 4 — (Optional) Add a `Makefile`
-
-Developers can just type `make dev`:
-
-```makefile
-.PHONY: setup dev run clean
-
-setup:
-	pip install uv
-	uv venv
-	uv sync
-
-dev:
-	source .venv/bin/activate && uv sync && pytest
-
-run:
-	source .venv/bin/activate && python -m openpcb
-
-clean:
-	rm -rf .venv __pycache__ .pytest_cache
-````
-
----
-
-✅ **Result**
-You now have:
-
-* **Instant environment setup** (1 second with UV’s binary caching)
-* **Reproducible builds** pinned via `pyproject.toml`
-* **Unified developer commands** through Makefile or plain uv CLI
-
----
-
-## 👨‍💻 Development Workflow
-
-### Setup for Development
-
-We provide shell scripts for easy development setup:
-
-```bash
-# First-time setup (installs linters, formatters, pre-commit hooks)
 ./setup.sh
-
-# Activate virtual environment
-source .venv/bin/activate
-
-# Run the application
 ./run.sh
-
-# Run tests
 ./test.sh
 ```
 
-### Development Tools
+The source layout reflects the intended architecture. Modules that are still empty are
+placeholders for planned work, not completed features.
 
-The project includes comprehensive development tooling:
-
-- **black** - Code formatter (line-length=100)
-- **isort** - Import sorter (black-compatible)
-- **flake8** - Style linter
-- **mypy** - Static type checker (strict mode)
-- **pylint** - Code analyzer
-- **pytest** - Testing framework with coverage support
-- **pre-commit** - Git hooks for automated quality checks
-
-### Code Quality Commands
-
-```bash
-# Format code
-black openpcb/
-
-# Sort imports
-isort openpcb/
-
-# Lint code
-flake8 openpcb/
-
-# Type check
-mypy openpcb/ --strict
-
-# Run all pre-commit hooks
-pre-commit run --all-files
-```
-
-### Testing
-
-```bash
-# Run all tests
-pytest
-
-# Run with coverage
-pytest --cov=openpcb
-
-# Run specific test file
-pytest tests/test_config.py -v
-
-# Run tests with output
-pytest -v -s
-```
-
-### Git Workflow
-
-Pre-commit hooks run automatically on `git commit`:
-- Code formatting (black, isort)
-- Style checks (flake8)
-- Type checking (mypy)
-- Trailing whitespace removal
-- File ending fixes
-
-Commit message template guides proper formatting:
-```
-<type>: <subject>
-
-<body>
-
-Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
-```
-
-Types: `feat`, `fix`, `refactor`, `style`, `doc`, `test`, `chore`
-
-### Project Structure
-
-```
+```text
 openpcb/
-├── openpcb/           # Main application package
-│   ├── config/        # Configuration system (Phase 1 ✅)
-│   ├── ui/            # User interface components (Phase 1 ✅)
-│   │   ├── preferences/  # Settings dialogs
-│   │   ├── mainwindow.py # Main application window
-│   │   └── hidpi.py   # HiDPI display support
-│   ├── cam/           # CAM operations (Phase 2)
-│   ├── importers/     # File format importers (Phase 2)
-│   ├── post/          # Post-processors (Phase 2)
-│   ├── sender/        # Device communication (Phase 2)
-│   ├── models/        # Data models
-│   ├── storage/       # Persistence layer
-│   └── viewer/        # Qt Quick viewer (Phase 2)
-├── tests/             # Test suite
-├── docs/              # Documentation
-│   ├── PROGRESS.md    # Implementation progress tracker
-│   └── ARCHITECTURE-CONFIG.md  # Configuration system docs
-├── setup.sh           # Development environment setup
-├── run.sh             # Application launcher
-└── test.sh            # Test runner
+├── config/       # Implemented settings models and persistence
+├── ui/           # Implemented application shell and preferences
+├── cam/          # Planned CAM operations
+├── importers/    # Planned PCB and toolpath importers
+├── post/         # Planned post-processors
+├── sender/       # Planned device communication
+├── storage/      # Planned project persistence
+└── viewer/       # Planned interactive viewer
 ```
 
-### Configuration
+## Contributing
 
-User settings are stored in platform-specific locations:
-- **Linux**: `~/.config/openpcb/settings.json`
-- **macOS**: `~/Library/Application Support/openpcb/settings.json`
-- **Windows**: `%APPDATA%\openpcb\settings.json`
+Contributions are welcome, especially focused changes that advance an item in the backlog.
+Before starting a large feature, please open an issue to discuss scope and architecture.
 
-### Phase 1 Status (Complete ✅)
+When submitting a change:
 
-Phase 1 implementation is complete with the following features:
-- ✅ Development environment with linters and git hooks
-- ✅ Configuration system with Pydantic models
-- ✅ HiDPI display support
-- ✅ Main window with menus, toolbars, and docks
-- ✅ Preferences dialog with multi-page settings
-- ✅ Comprehensive documentation
+1. Keep unfinished behavior clearly identified as experimental or planned.
+2. Add or update tests for implemented behavior.
+3. Run `uv run pytest` and `uv build` locally.
+4. Describe what is working now and what remains outside the change.
 
-See [PHASE1-PROGRESS.md](docs/PHASE1-PROGRESS.md) for detailed implementation status.
+## Documentation
 
-### Next Steps (Phase 2)
+- [Documentation index](docs/INDEX.md)
+- [Project specification](docs/SPEC-1-OpenPCB.md)
+- [Phase 1 architecture](docs/PHASE1-ARCHITECTURE-CONFIG.md)
+- [Deployment notes](docs/DEPLOYMENT.md)
+- [Risk register](docs/07-RiskRegister.md)
 
-- Qt Quick viewer integration with high-performance rendering
-- Layer management UI with visibility controls
-- File importers (Gerber, Excellon, SVG, G-code)
-- CAM operations (isolation, drill, outline, raster)
-- Auto-leveling with height maps
+## License
 
----
-
-
+OpenPCB is available under the [BSD 2-Clause License](LICENSE).

@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+      - name: Install project
+        run: python -m pip install --upgrade pip && python -m pip install ".[dev]"
+      - name: Run tests
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: pytest
+      - name: Verify command-line entry point
+        run: openpcb --echo "entry point works"
+      - name: Build distributions
+        run: python -m build
